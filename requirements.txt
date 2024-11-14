@@ -3,3 +3,6 @@ pygwalker
 pandas
 fastapi
 uvicorn
+openpyxl 
+xlrd    
+requests
