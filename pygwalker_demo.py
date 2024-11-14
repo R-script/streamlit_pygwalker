@@ -4,7 +4,7 @@ import requests
 from pygwalker.api.streamlit import StreamlitRenderer
 
 # Define the FastAPI upload endpoint URL
-FASTAPI_UPLOAD_URL = "http://localhost:8000/upload"
+FASTAPI_UPLOAD_URL = "http://127.0.0.1:8000/upload"
 
 # Function to load data based on file type
 def load_data(file_path, file_type):
