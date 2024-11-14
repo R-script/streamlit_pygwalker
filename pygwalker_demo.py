@@ -7,6 +7,7 @@ import uvicorn
 import threading
 import pygwalker
 from pygwalker.api.streamlit import StreamlitRenderer
+from io import BytesIO
 
 # FastAPI app setup
 fastapi_app = FastAPI()
@@ -24,8 +25,7 @@ fastapi_app.add_middleware(
 @fastapi_app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
-    # You can perform any file processing here, like parsing or saving the file
-    # For now, we're just returning the filename and content type
+    # Here you can add your file processing logic, like saving or parsing the file
     return {"filename": file.filename, "content_type": file.content_type}
 
 # Function to run FastAPI in a background thread
@@ -49,9 +49,9 @@ def load_data(file):
 # Function to upload file to FastAPI
 def upload_to_fastapi(file):
     url = "http://127.0.0.1:8000/upload"  # FastAPI local URL
-    with open(file.name, 'rb') as f:
-        files = {'file': (file.name, f, file.type)}
-        response = requests.post(url, files=files)
+    file_bytes = BytesIO(file.read())  # Read file as bytes
+    files = {'file': (file.name, file_bytes, file.type)}
+    response = requests.post(url, files=files)
     return response.json()
 
 # Main Streamlit application function
