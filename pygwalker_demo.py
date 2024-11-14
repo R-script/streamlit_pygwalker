@@ -5,6 +5,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import threading
+import pygwalker
 from pygwalker.api.streamlit import StreamlitRenderer
 
 # FastAPI app setup
