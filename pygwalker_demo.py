@@ -24,7 +24,8 @@ fastapi_app.add_middleware(
 @fastapi_app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
-    # Here you can add your file processing logic
+    # You can perform any file processing here, like parsing or saving the file
+    # For now, we're just returning the filename and content type
     return {"filename": file.filename, "content_type": file.content_type}
 
 # Function to run FastAPI in a background thread
@@ -58,9 +59,11 @@ def main():
     # Initialize session state for the uploaded data
     if 'data' not in st.session_state:
         st.session_state.data = None
+    if 'visualization' not in st.session_state:
+        st.session_state.visualization = False
 
     # Step 1: File Upload Section
-    if st.session_state.data is None:
+    if not st.session_state.visualization:
         st.title("Data Upload Screen")
         st.header("Upload your data file")
         uploaded_file = st.file_uploader("Choose a CSV or Excel file", type=['csv', 'xlsx'])
