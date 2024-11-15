@@ -86,6 +86,7 @@ def main():
                 # Button to navigate to visualization
                 if st.button("Proceed to Visualization"):
                     st.session_state.visualization = True
+                    # Automatically trigger visualization when the button is clicked
             else:
                 st.error("Error loading the file. Please ensure it's a valid CSV or Excel file.")
     else:
@@ -95,14 +96,18 @@ def main():
             layout="wide"
         )
         df = st.session_state.data
-        pyg_app = StreamlitRenderer(df)
 
+        # Clean data (e.g., drop NaN values) before visualizing
+        df = df.dropna()  # Optional: Drop rows with missing values
+        df = df.reset_index(drop=True)  # Reset the index for consistency
+
+        pyg_app = StreamlitRenderer(df)
         pyg_app.explorer()  # Visualize the data
 
         # Button to go back to upload screen
         if st.button("Go Back to Upload"):
             st.session_state.data = None  # Reset session state for data
-            st.session_state.visualization = False
+            st.session_state.visualization = False  # Reset to the upload screen
 
 # Run the main function to start the app
 if __name__ == "__main__":
