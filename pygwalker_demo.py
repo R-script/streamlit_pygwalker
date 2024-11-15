@@ -57,9 +57,16 @@ def upload_to_fastapi(file):
 # Function to preprocess data before passing it to pygwalker
 def preprocess_data(df):
     """Clean and preprocess the data before passing it to pygwalker."""
-    # Replace infinite values with NaN and drop rows with NaN values
-    df = df.replace([np.inf, -np.inf], np.nan).dropna()
+    
+    # Replace None or NaN values with NaN or a placeholder
+    df = df.applymap(lambda x: np.nan if x is None else x)
+    
+    # Optionally, fill NaN values with a placeholder, for example, 0 or "N/A"
+    df = df.fillna("N/A")  # Or you could use 0, depending on the data
 
+    # Alternatively, you can drop rows/columns with NaN values
+    # df = df.dropna()  # Uncomment this line to drop rows with NaN values
+    
     # Limit the dataset size to a manageable number of rows (e.g., 1000 rows)
     max_rows = 1000
     df = df.head(max_rows)
