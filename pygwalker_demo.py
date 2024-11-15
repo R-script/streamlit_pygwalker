@@ -1,13 +1,13 @@
-import streamlit as st
 import pandas as pd
 import numpy as np
-from pygwalker.api.streamlit import StreamlitRenderer
-from io import BytesIO
+import streamlit as st
 import requests
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import threading
+from io import BytesIO
+from pygwalker.api.streamlit import StreamlitRenderer
 
 # FastAPI app setup
 fastapi_app = FastAPI()
@@ -54,6 +54,18 @@ def upload_to_fastapi(file):
     response = requests.post(url, files=files)
     return response.json()
 
+# Function to preprocess data before passing it to pygwalker
+def preprocess_data(df):
+    """Clean and preprocess the data before passing it to pygwalker."""
+    # Replace infinite values with NaN and drop rows with NaN values
+    df = df.replace([np.inf, -np.inf], np.nan).dropna()
+
+    # Limit the dataset size to a manageable number of rows (e.g., 1000 rows)
+    max_rows = 1000
+    df = df.head(max_rows)
+    
+    return df
+
 # Main Streamlit application function
 def main():
     # Initialize session state for the uploaded data
@@ -86,36 +98,30 @@ def main():
                 # Button to navigate to visualization
                 if st.button("Proceed to Visualization"):
                     st.session_state.visualization = True
-
             else:
                 st.error("Error loading the file. Please ensure it's a valid CSV or Excel file.")
-    
     else:
         # Step 2: Data Visualization Screen
         st.set_page_config(
             page_title="Use Pygwalker In Streamlit",
             layout="wide"
         )
-
         df = st.session_state.data
 
-        # Clean the data to avoid any division by zero
-        df = df.replace(0, np.nan)  # Replace zero values with NaN
-        df = df.dropna()  # Drop rows with NaN values, if necessary
+        # Preprocess the data before passing it to pygwalker
+        df = preprocess_data(df)
 
         try:
-            # Attempt to render the data using pygwalker
             pyg_app = StreamlitRenderer(df)
             pyg_app.explorer()  # Visualize the data
-        except ZeroDivisionError as e:
-            # Catch the ZeroDivisionError and display the error message
-            st.error(f"A ZeroDivisionError occurred: {e}")
-            st.write(df)  # Show the data to help identify the issue
+        except Exception as e:
+            st.error(f"An error occurred while visualizing the data: {e}")
 
         # Button to go back to upload screen
         if st.button("Go Back to Upload"):
             st.session_state.data = None  # Reset session state for data
-            st.session_state.visualization = False  # Reset to the upload screen
+            st.session_state.visualization = False  # Reset visualization state
 
+# Run the main function to start the app
 if __name__ == "__main__":
     main()
